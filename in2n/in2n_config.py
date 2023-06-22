@@ -68,6 +68,57 @@ in2n_method = MethodSpecification(
     description="Instruct-NeRF2NeRF primary method: uses LPIPS, IP2P at full precision",
 )
 
+in2n_method_big = MethodSpecification(
+    config=InstructNeRF2NeRFTrainerConfig(
+        method_name="in2n-big",
+        steps_per_eval_batch=1000,
+        steps_per_eval_image=100,
+        steps_per_save=250,
+        max_num_iterations=15000,
+        save_only_latest_checkpoint=True,
+        mixed_precision=True,
+        pipeline=InstructNeRF2NeRFPipelineConfig(
+            datamanager=InstructNeRF2NeRFDataManagerConfig(
+                dataparser=NerfstudioDataParserConfig(),
+                train_num_rays_per_batch=16384,
+                eval_num_rays_per_batch=4096,
+                patch_size=32,
+                camera_optimizer=CameraOptimizerConfig(
+                    mode="SO3xR3", optimizer=AdamOptimizerConfig(lr=1e-30, eps=1e-8, weight_decay=1e-2)
+                ),
+            ),
+            model=InstructNeRF2NeRFModelConfig(
+                eval_num_rays_per_chunk=1 << 15,
+                use_lpips=True,
+
+                num_nerf_samples_per_ray=128,
+                num_proposal_samples_per_ray=(512, 256),
+                hidden_dim=128,
+                hidden_dim_color=128,
+                appearance_embed_dim=128,
+                base_res=32,
+                max_res=4096,
+                proposal_weights_anneal_max_num_iters=5000,
+                log2_hashmap_size=21,
+            ),
+            ip2p_use_full_precision=True
+        ),
+        optimizers={
+            "proposal_networks": {
+                "optimizer": AdamOptimizerConfig(lr=1e-2, eps=1e-15),
+                "scheduler": None,
+            },
+            "fields": {
+                "optimizer": AdamOptimizerConfig(lr=1e-2, eps=1e-15),
+                "scheduler": None,
+            },
+        },
+        viewer=ViewerConfig(num_rays_per_chunk=1 << 15),
+        vis="viewer",
+    ),
+    description="Instruct-NeRF2NeRF primary method: uses LPIPS, IP2P at full precision",
+)
+
 in2n_method_small = MethodSpecification(
     config=InstructNeRF2NeRFTrainerConfig(
         method_name="in2n-small",
