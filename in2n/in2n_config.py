@@ -116,7 +116,7 @@ in2n_method_big = MethodSpecification(
         viewer=ViewerConfig(num_rays_per_chunk=1 << 15),
         vis="viewer",
     ),
-    description="Instruct-NeRF2NeRF primary method: uses LPIPS, IP2P at full precision",
+    description="Instruct-NeRF2NeRF primary method: Big",
 )
 
 in2n_method_small = MethodSpecification(
